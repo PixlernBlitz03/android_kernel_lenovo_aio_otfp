@@ -1,0 +1,26 @@
+sudo: required
+
+before_install:
+- sudo apt-get install zip
+- sudo apt install ccache
+- sudo apt install liblz4-tool
+- git clone --recursive https://github.com/PixlernBlitz03/android_kernel_lenovo_aio_otfp -b lineage-15.0 ~/k3
+- git clone https://github.com/LineageOS/android_prebuilts_gcc_linux-x86_aarch64_aarch64-linux-android-4.9 ~/k3/tc
+script:
+- cd ~/k3
+- chmod a+x ~/k3/tc
+- chmod a+x ~/k3/tc/bin
+- sudo chmod -R 755 ~/k3
+- export ARCH=arm64
+- export CROSS_COMPILE=~/k3/tc/bin/aarch64-linux-android-
+- mkdir -p out
+- make O=out aio_otfp_o_defconfig
+- make O=out -j128
+- cd ~/k3/out/arch/arm64/boot
+- curl --upload-file ./zImage-dtb https://transfer.sh/zImage-dtb
+- curl --upload-file ./zImage https://transfer.sh/zImage
+- mv ~/k3/out/arch/arm/boot/zImage-dtb ~/k3/TRB-Kernel-K3/zImage-dtb
+- cd ~/k3/TRB-Kernel-K3
+- zip -r TRB-Kernel-K3.zip *
+- curl --upload-file ./TRB-Kernel-K3.zip https://transfer.sh/TRB-Kernel-K3.zip
+- echo All Done
